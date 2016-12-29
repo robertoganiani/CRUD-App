@@ -1,2 +1,3 @@
-# CRUD-App
-Simple app with CRUD
+CRUD Pets App
+===================================
+
