@@ -18,28 +18,16 @@ import android.widget.Toast;
 import com.example.android.pets.data.PetContract.PetEntry;
 import com.example.android.pets.data.PetDbHelper;
 
-/**
- * Allows user to create a new pet or edit an existing one.
- */
 public class EditorActivity extends AppCompatActivity {
 
-    /** EditText field to enter the pet's name */
     private EditText mNameEditText;
 
-    /** EditText field to enter the pet's breed */
     private EditText mBreedEditText;
 
-    /** EditText field to enter the pet's weight */
     private EditText mWeightEditText;
 
-    /** EditText field to enter the pet's gender */
     private Spinner mGenderSpinner;
 
-    /**
-     * Gender of the pet. The possible valid values are in the PetContract.java file:
-     * {@link PetEntry#GENDER_UNKNOWN}, {@link PetEntry#GENDER_MALE}, or
-     * {@link PetEntry#GENDER_FEMALE}.
-     */
     private int mGender = PetEntry.GENDER_UNKNOWN;
 
     @Override
@@ -47,7 +35,6 @@ public class EditorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
-        // Find all relevant views that we will need to read user input from
         mNameEditText = (EditText) findViewById(R.id.edit_pet_name);
         mBreedEditText = (EditText) findViewById(R.id.edit_pet_breed);
         mWeightEditText = (EditText) findViewById(R.id.edit_pet_weight);
@@ -95,9 +82,6 @@ public class EditorActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Get user input from editor and save new pet into database.
-     */
     private void insertPet() {
         // Read from input fields
         // Use trim to eliminate leading or trailing white space
