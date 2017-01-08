@@ -1,7 +1,10 @@
 package com.example.android.pets;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,14 +14,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.example.android.pets.data.PetContract.PetEntry;
 
 /**
  * Displays list of pets that were entered and stored in the app.
  */
-public class CatalogActivity extends AppCompatActivity {
+public class CatalogActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    private static final int PET_LOADER = 0;
+
+    PetCursorAdapter cursorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,42 +45,13 @@ public class CatalogActivity extends AppCompatActivity {
         ListView petListView = (ListView) findViewById(R.id.pet_list_view);
         View emptyView = findViewById(R.id.empty_view);
         petListView.setEmptyView(emptyView);
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        displayDatabaseInfo();
-    }
+        //set adapter to fill list  view from cursor data
+        cursorAdapter = new PetCursorAdapter(this, null);
+        petListView.setAdapter(cursorAdapter);
 
-    /**
-     * Temporary helper method to display information in the onscreen TextView about the state of
-     * the pets database.
-     */
-    private void displayDatabaseInfo() {
-
-        // Define a projection that specifies which columns from the database
-        // use after this query.
-        String[] projection = {
-                PetEntry._ID,
-                PetEntry.COLUMN_PET_NAME,
-                PetEntry.COLUMN_PET_BREED,
-                PetEntry.COLUMN_PET_GENDER,
-                PetEntry.COLUMN_PET_WEIGHT};
-
-        // Perform a query on the pets table
-        Cursor cursor = getContentResolver().query(
-                PetEntry.CONTENT_URI,
-                projection,
-                null,
-                null,
-                null);
-
-        ListView petListView = (ListView) findViewById(R.id.pet_list_view);
-
-        PetCursorAdapter adapter = new PetCursorAdapter(this, cursor);
-
-        petListView.setAdapter(adapter);
+        //start loader
+        getLoaderManager().initLoader(PET_LOADER, null, this);
 
     }
 
@@ -112,7 +89,6 @@ public class CatalogActivity extends AppCompatActivity {
 
             case R.id.action_insert_dummy_data:
                 insertPet();
-                displayDatabaseInfo();
                 return true;
 
             case R.id.action_delete_all_entries:
@@ -120,5 +96,35 @@ public class CatalogActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        // Define a projection that specifies which columns from the database
+        // use after this query.
+        String[] projection = {
+                PetEntry._ID,
+                PetEntry.COLUMN_PET_NAME,
+                PetEntry.COLUMN_PET_BREED};
+
+        // Perform a query on the pets table
+        return new CursorLoader(this,
+                PetEntry.CONTENT_URI,
+                projection,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        //update cursor with new data
+        cursorAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        //callback called when data needs to be deleted
+        cursorAdapter.swapCursor(null);
     }
 }
